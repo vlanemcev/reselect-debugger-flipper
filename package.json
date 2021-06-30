@@ -10,6 +10,13 @@
   "homepage": "https://github.com/vlanemcev/reselect-debugger-flipper",
   "bugs": "https://github.com/vlanemcev/reselect-debugger-flipper/issues",
   "author": "Vladyslav Niemtsev <frontend.vlanemcev@gmail.com> (https://github.com/vlanemcev)",
+  "keywords": [
+    "flipper-plugin",
+    "reselect",
+    "reselect-dev-tools",
+    "reselect-devtools",
+    "reselect-tools"
+  ],
   "license": "MIT",
   "scripts": {
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
