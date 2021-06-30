@@ -1,6 +1,6 @@
 {
   "name": "reselect-debugger-flipper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Reselect Debugging Tools for React Native and Flipper",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
