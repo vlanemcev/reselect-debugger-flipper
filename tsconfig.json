@@ -10,6 +10,7 @@
     ],
     "sourceMap": true,
     "outDir": "./dist",
+    "declaration": true,
     "moduleResolution": "node",
     "removeComments": true,
     "noImplicitAny": false,
