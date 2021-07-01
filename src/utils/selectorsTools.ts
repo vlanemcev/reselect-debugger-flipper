@@ -160,6 +160,10 @@ export function createSelectorGraph(options?: CreateSelectorGraphOptions): Graph
   return graph;
 }
 
+export const resetSelectorsRecomputationCount = () => {
+  allSelectors.forEach((selector) => selector?.resetRecomputations());
+};
+
 export function resetSelectorsState() {
   getState = null;
   allSelectors.clear();

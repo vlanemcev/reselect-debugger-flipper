@@ -7,6 +7,7 @@ import {
   analyzeSelector,
   createSelectorGraph,
   registerSelectors,
+  resetSelectorsRecomputationCount,
   resetSelectorsState,
 } from './utils/selectorsTools';
 
@@ -38,6 +39,14 @@ const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
 
       connection.receive('refreshSelectorsGraph', (_, responder) => {
         const selectorGraph = createSelectorGraph({ stateGetter });
+        responder.success(selectorGraph);
+      });
+
+      connection.receive('resetSelectorsRecomputationCount', (_, responder) => {
+        resetSelectorsRecomputationCount();
+
+        const selectorGraph = createSelectorGraph({ stateGetter });
+
         responder.success(selectorGraph);
       });
     },

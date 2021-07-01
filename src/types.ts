@@ -20,20 +20,21 @@ export type AnalyzedSelectorResult = {
   selectorName: string | null;
 } & ExtraAnalyzedSelectorResult;
 
+export type GraphNode = {
+  isNamed: boolean;
+  name: string;
+  recomputations: number | null;
+  lastRecomputationReasone: string | null;
+} & ExtraAnalyzedSelectorResult;
+
+export type GraphEdge = {
+  from: string;
+  to: string;
+};
+
 export type GraphRepresentation = {
-  nodes: Record<
-    string,
-    {
-      isNamed: boolean;
-      name: string;
-      recomputations: number | null;
-      lastRecomputationReasone: string | null;
-    } & ExtraAnalyzedSelectorResult
-  >;
-  edges: {
-    from: string;
-    to: string;
-  }[];
+  nodes: Record<string, GraphNode>;
+  edges: GraphEdge[];
 };
 
 export type StateGetter = () => any;
