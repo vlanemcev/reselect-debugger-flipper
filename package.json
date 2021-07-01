@@ -1,9 +1,13 @@
 {
   "name": "reselect-debugger-flipper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Reselect Debugging Tools for React Native and Flipper",
   "main": "dist/index.js",
+  "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "repository": {
     "url": "https://github.com/vlanemcev/reselect-debugger-flipper",
     "type": "git"
@@ -21,10 +25,16 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "build": "tsc",
-    "dev": "tsc -w"
+    "build": "rollup -c",
+    "prepublishOnly": "yarn run build"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-typescript": "^7.14.5",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@types/lodash.isempty": "^4.4.6",
     "@types/redux": "^3.6.0",
     "@types/reselect": "^2.2.0",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
@@ -34,16 +44,17 @@
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-promise": "^5.1.0",
     "prettier": "^2.3.2",
+    "react-native-flipper": "^0.96.0",
+    "rollup": "^2.52.6",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-typescript2": "^0.30.0",
     "typescript": "^4.3.4"
   },
   "peerDependencies": {
     "lodash.isempty": "^4.4.0",
-    "react-native-flipper": "^0.95.0"
-  },
-  "dependencies": {
-    "@types/lodash.isempty": "^4.4.6",
-    "eslint-plugin-prettier": "^3.4.0"
+    "react-native-flipper": "^0.96.0"
   }
 }
