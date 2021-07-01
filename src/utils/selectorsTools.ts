@@ -6,17 +6,13 @@ import {
   SelectorsToRegister,
   StateGetter,
 } from '../types';
-import {
-  isFunction,
-  isSelector,
-  sumString,
-} from './index';
+import { isFunction, isSelector, sumString } from './common';
 
 let getState: StateGetter | null = null;
 const allSelectors = new Set<Selector>();
 
 export const namespaceSelectors = (selectors: SelectorsToRegister, prefix: string) => {
-  const namespaced: Record<string, Function> = {};
+  const namespaced: SelectorsToRegister = {};
 
   Object.entries(selectors).forEach(([name, func]) => {
     namespaced[`${prefix}:${name}`] = func;

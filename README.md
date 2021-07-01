@@ -29,10 +29,12 @@ const middlewares = [/* other middlewares */];
 
 const store = createStore(RootReducer, applyMiddleware(...middlewares));
 
-const reselectDebugger = require('reselect-debugger-flipper').default;
-reselectDebugger.configure({
-  selectors
-});
+if (__DEV__) {
+  const reselectDebugger = require('reselect-debugger-flipper');
+  reselectDebugger.configure({
+    selectors
+  });
+}
 
 return store;
 ```
@@ -58,13 +60,15 @@ const middlewares = [/* other middlewares */];
 
 const store = createStore(RootReducer, applyMiddleware(...middlewares));
 
-const reselectDebugger = require('reselect-debugger-flipper').default;
-reselectDebugger.configure({
-  selectors,
-
-  /* to calculate input / outputs of selectors */
-  stateGetter: store.getState,
-});
+if (__DEV__) {
+  const reselectDebugger = require('reselect-debugger-flipper');
+  reselectDebugger.configure({
+    selectors,
+  
+    /* for calculate input / outputs of selectors */
+    stateGetter: store.getState,
+  });
+}
 
 return store;
 ```
@@ -84,10 +88,45 @@ import { createStore, applyMiddleware } from 'redux';
 const middlewares = [/* other middlewares */];
 
 if (__DEV__) {
-  const reselectDebugger = require('reselect-debugger-flipper').default;
+  const reselectDebugger = require('reselect-debugger-flipper');
 
-  /* to enable reselect debugger live updates */
+  /* for enable reselect debugger live updates */
   middlewares.push(reselectDebugger.reduxMiddleware);
+}
+```
+
+### All options together
+
+This is an example of how to wire all options together. 
+Just move the debugger import to one place.
+
+```javascript
+import { createStore, applyMiddleware } from 'redux';
+
+const configureStore = () => {
+
+  let reselectDebugger;
+  if (__DEV__) {
+    reselectDebbuger = require('reselect-debugger-flipper');
+  }
+
+  const middlewares = [/* other middlewares */];
+  
+  if (__DEV__) {
+    /* for enable reselect debugger live updates */
+    middlewares.push(reselectDebugger.reduxMiddleware);
+  }
+  
+  const store = createStore(RootReducer, applyMiddleware(...middlewares));
+
+  if (__DEV__) {
+    reselectDebugger.configure({
+      selectors,
+
+      /* for calculate input / outputs of selectors */
+      stateGetter: store.getState,
+    });
+  }
 }
 ```
 

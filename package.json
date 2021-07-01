@@ -29,9 +29,6 @@
     "prepublishOnly": "yarn run build"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.6",
-    "@babel/preset-env": "^7.14.7",
-    "@babel/preset-typescript": "^7.14.5",
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/lodash.isempty": "^4.4.6",
@@ -54,7 +51,9 @@
     "typescript": "^4.3.4"
   },
   "peerDependencies": {
-    "lodash.isempty": "^4.4.0",
     "react-native-flipper": "^0.96.0"
+  },
+  "dependencies": {
+    "lodash.isempty": "^4.4.0"
   }
 }

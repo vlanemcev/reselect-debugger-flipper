@@ -1,4 +1,4 @@
-import isEmpty from 'lodash/isEmpty';
+import isEmpty from 'lodash.isempty';
 import { addPlugin, Flipper } from 'react-native-flipper';
 import { Action, Middleware } from 'redux';
 
@@ -8,7 +8,7 @@ import {
   createSelectorGraph,
   registerSelectors,
   resetSelectorsState,
-} from './utils';
+} from './utils/selectorsTools';
 
 interface ReselectDebbugerConfigProps {
   selectors: SelectorsToRegister;
@@ -26,7 +26,7 @@ let reselectDebbugerConnection: Flipper.FlipperConnection | null = null;
 
 const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
   addPlugin({
-    getId: () => 'reselect-dev-tools',
+    getId: () => 'reselect-debugger',
     onConnect: (connection) => {
       // save flipper connection instance
       reselectDebbugerConnection = connection;
