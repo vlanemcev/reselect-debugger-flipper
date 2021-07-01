@@ -162,7 +162,8 @@ export function createSelectorGraph(options?: CreateSelectorGraphOptions): Graph
 
 export const resetSelectorsRecomputationCount = () => {
   allSelectors.forEach((selector) => {
-    if ((selector.resetRecomputations as () => number) || undefined) {
+    // @ts-ignore the selector may not have this function
+    if (selector?.resetRecomputations) {
       selector.resetRecomputations();
     }
   });
