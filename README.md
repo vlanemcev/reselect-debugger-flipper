@@ -45,7 +45,7 @@ return store;
 Manage Plugins > Install Plugins > search "reselect-debugger" > Install
 ```
 
-3. Start your app, then you should be able to see Redux Debugger on your Flipper app
+3. Start your app, then you should be able to see Reselect Debugger on your Flipper app
 
 ## Optional Configuration
 
