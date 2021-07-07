@@ -8,7 +8,6 @@ import {
   createSelectorGraph,
   registerSelectors,
   resetSelectorsRecomputationCount,
-  resetSelectorsState,
 } from './utils/selectorsTools';
 
 interface ReselectDebbugerConfigProps {
@@ -29,6 +28,8 @@ const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
   addPlugin({
     getId: () => 'reselect-debugger',
     onConnect: (connection) => {
+      console.log('Reselect Debugger has successfully connected');
+
       // save flipper connection instance
       reselectDebbugerConnection = connection;
 
@@ -50,11 +51,7 @@ const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
         responder.success(selectorGraph);
       });
     },
-    onDisconnect: () => {
-      // clear flipper connection instance
-      reselectDebbugerConnection = null;
-      resetSelectorsState();
-    },
+    onDisconnect: () => undefined,
     runInBackground: () => true,
   });
 };
