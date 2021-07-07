@@ -55,7 +55,7 @@ const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
       reselectDebbugerConnection = null;
       resetSelectorsState();
     },
-    runInBackground: () => false,
+    runInBackground: () => true,
   });
 };
 
