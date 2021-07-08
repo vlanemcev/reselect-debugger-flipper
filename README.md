@@ -25,6 +25,8 @@ cd ios && pod install
 ```javascript
 import { createStore, applyMiddleware } from 'redux';
 
+import * as selectors from 'src/redux/selectors';
+
 const middlewares = [/* other middlewares */];
 
 const store = createStore(RootReducer, applyMiddleware(...middlewares));
@@ -55,6 +57,8 @@ By default, outputs only the recomputations of the selector. If you use will pas
 
 ```javascript
 import { createStore, applyMiddleware } from 'redux';
+
+import * as selectors from 'src/redux/selectors';
 
 const middlewares = [/* other middlewares */];
 
@@ -103,6 +107,8 @@ Just move the debugger import to one place.
 ```javascript
 import { createStore, applyMiddleware } from 'redux';
 
+import * as selectors from 'src/redux/selectors';
+
 const configureStore = () => {
 
   let reselectDebugger;
@@ -122,6 +128,47 @@ const configureStore = () => {
   if (__DEV__) {
     reselectDebugger.configure({
       selectors,
+
+      /* for calculate input / outputs of selectors */
+      stateGetter: store.getState,
+    });
+  }
+}
+```
+
+### Selectors Namespacing
+
+You can give your selectors a special prefix that will appear in the graph.
+It can be done with using `namespaceSelectors` function.
+
+```javascript
+import { createStore, applyMiddleware } from 'redux';
+
+import * as selectors from 'src/redux/selectors';
+import * as otherSelectors from 'src/redux/otherSelectors';
+
+const configureStore = () => {
+
+  let reselectDebugger;
+  if (__DEV__) {
+    reselectDebbuger = require('reselect-debugger-flipper');
+  }
+
+  const middlewares = [/* other middlewares */];
+  
+  if (__DEV__) {
+    /* for enable reselect debugger live updates */
+    middlewares.push(reselectDebugger.reduxMiddleware);
+  }
+  
+  const store = createStore(RootReducer, applyMiddleware(...middlewares));
+
+  if (__DEV__) {
+    reselectDebugger.configure({
+      { 
+        ...reselectDebugger.namespaceSelectors(selectors, 'important'),
+        ...reselectDebugger.namespaceSelectors(otherSelectors, 'other')
+      },
 
       /* for calculate input / outputs of selectors */
       stateGetter: store.getState,
