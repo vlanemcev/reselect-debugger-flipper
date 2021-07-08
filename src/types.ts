@@ -9,6 +9,7 @@ export type SelectorsToRegister = Record<string, Selector>;
 
 export type ExtraAnalyzedSelectorResult = {
   selectorInputs: unknown[] | null;
+  outputIsStateDependentOnly: boolean | null;
   selectorOutput: unknown | null;
   analyzingError: string | null;
 };

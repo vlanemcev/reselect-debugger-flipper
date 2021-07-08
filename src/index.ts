@@ -4,7 +4,8 @@ import { Action, Middleware } from 'redux';
 
 import { GraphRepresentation, SelectorsToRegister, StateGetter } from './types';
 import {
-  analyzeSelector,
+  resetSelectorsState,
+  namespaceSelectors,
   createSelectorGraph,
   registerSelectors,
   resetSelectorsRecomputationCount,
@@ -16,6 +17,7 @@ interface ReselectDebbugerConfigProps {
 }
 
 let reselectDebbugerConnection: Flipper.FlipperConnection | null = null;
+let latestSelectorGraph: GraphRepresentation | null = null;
 
 /**
  * Register selectors and create Reselect Debugger Tools UI in Flipper
@@ -34,24 +36,31 @@ const configure = ({ selectors, stateGetter }: ReselectDebbugerConfigProps) => {
       reselectDebbugerConnection = connection;
 
       registerSelectors(selectors);
-      const selectorGraph = createSelectorGraph({ stateGetter });
 
-      connection.send('setSelectorsGraph', selectorGraph);
+      latestSelectorGraph = createSelectorGraph({ stateGetter });
 
+      // send created selector graph
+      connection.send('setSelectorsGraph', latestSelectorGraph);
+
+      // connection events subscribers
       connection.receive('refreshSelectorsGraph', (_, responder) => {
-        const selectorGraph = createSelectorGraph({ stateGetter });
-        responder.success(selectorGraph);
+        latestSelectorGraph = createSelectorGraph({ stateGetter });
+        responder.success(latestSelectorGraph);
       });
 
       connection.receive('resetSelectorsRecomputationCount', (_, responder) => {
         resetSelectorsRecomputationCount();
 
-        const selectorGraph = createSelectorGraph({ stateGetter });
-
-        responder.success(selectorGraph);
+        latestSelectorGraph = createSelectorGraph({ stateGetter });
+        responder.success(latestSelectorGraph);
       });
     },
-    onDisconnect: () => undefined,
+    onDisconnect: () => {
+      reselectDebbugerConnection = null;
+      latestSelectorGraph = null;
+
+      resetSelectorsState();
+    },
     runInBackground: () => true,
   });
 };
@@ -68,54 +77,47 @@ const reduxMiddleware: Middleware = (store) => (next) => (action) => {
     return next(action);
   }
 
-  // get selectors graph before any updates/
-  const currentNodes = createSelectorGraph({ stateGetter: store.getState }).nodes;
+  if (latestSelectorGraph) {
+    // get latest selectors graph before any updates
+    const currentNodes = latestSelectorGraph.nodes;
 
-  // get reducer result
-  const result = next(action);
+    // get reducer result
+    const result = next(action);
 
-  // get selectors graph after Store update
-  const nextGraph = createSelectorGraph({ stateGetter: store.getState });
-  const nextNodes = nextGraph.nodes;
-  const nnKeys = Object.keys(nextGraph.nodes);
+    // get selectors graph after Store update
+    latestSelectorGraph = createSelectorGraph({ stateGetter: store.getState });
+    const nextNodes = latestSelectorGraph.nodes;
+    const nnKeys = Object.keys(latestSelectorGraph.nodes);
 
-  const nodesToUpdate: GraphRepresentation['nodes'] = {};
+    const nodesToUpdate: GraphRepresentation['nodes'] = {};
 
-  // update nodes if action changed any selectors
-  nnKeys.forEach((key) => {
-    if (currentNodes[key].recomputations !== nextNodes[key].recomputations) {
-      const { selectorInputs, selectorOutput, analyzingError, recomputations } = analyzeSelector(
-        key,
-        store.getState,
-      );
+    // update nodes if action changed any selectors
+    nnKeys.forEach((key) => {
+      if (currentNodes[key].recomputations !== nextNodes[key].recomputations) {
+        nodesToUpdate[key] = {
+          ...nextNodes[key],
 
-      nodesToUpdate[key] = {
-        // save static node information
-        ...nextNodes[key],
-        recomputations,
-        // setting the recomputation reasone
-        lastRecomputationReasone: `Action: ${(action as Action).type}`,
-        // updating selectors analyze info
-        selectorInputs,
-        selectorOutput,
-        analyzingError,
-      };
-    }
-  });
-
-  if (!isEmpty(nodesToUpdate)) {
-    updateSelectorsGraph({
-      nodes: { ...nextNodes, ...nodesToUpdate },
-      edges: [...nextGraph.edges],
+          // setting the recomputation reasone
+          lastRecomputationReasone: `Action: ${(action as Action).type}`,
+        };
+      }
     });
-  }
 
-  return result;
+    if (!isEmpty(nodesToUpdate)) {
+      updateSelectorsGraph({
+        nodes: { ...nextNodes, ...nodesToUpdate },
+        edges: [...latestSelectorGraph.edges],
+      });
+    }
+
+    return result;
+  }
 };
 
 const ReselectDebbuger = {
   configure,
   reduxMiddleware,
+  namespaceSelectors,
 };
 
 export default ReselectDebbuger;

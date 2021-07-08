@@ -8,7 +8,6 @@ import {
 } from '../types';
 import { isFunction, isSelector, sumString } from './common';
 
-let getState: StateGetter | null = null;
 const allSelectors = new Set<Selector>();
 
 export const namespaceSelectors = (selectors: SelectorsToRegister, prefix: string) => {
@@ -39,7 +38,7 @@ export function registerSelectors(selectors: SelectorsToRegister) {
   });
 }
 
-export function analyzeSelector(selector: Selector | string, stateGetter = getState) {
+export function analyzeSelector(selector: Selector | string, stateGetter?: StateGetter) {
   if (typeof selector === 'string') {
     for (const possibleSelector of allSelectors) {
       if (possibleSelector.selectorName === selector) {
@@ -66,6 +65,7 @@ export function analyzeSelector(selector: Selector | string, stateGetter = getSt
     isNamed,
     selectorName,
     selectorInputs: null,
+    outputIsStateDependentOnly: null,
     selectorOutput: null,
     analyzingError: null,
   };
@@ -74,20 +74,35 @@ export function analyzeSelector(selector: Selector | string, stateGetter = getSt
     const state = stateGetter();
 
     try {
-      const inputs = dependencies.map((parentSelector) => parentSelector(state));
+      const outputIsStateDependentOnly = dependencies.every(
+        // check input selectors if it has external arguments
+        // if true -> we can`t get selectors output because it will lead to increase recomputations count
+        (inputSelector) => inputSelector.length < 2,
+      );
 
-      if (inputs.length > 0) {
-        analyzingResult.selectorInputs = inputs;
-      }
+      analyzingResult.outputIsStateDependentOnly = outputIsStateDependentOnly;
 
       try {
-        analyzingResult.selectorOutput = receivedSelector(state);
-        analyzingResult.analyzingError = null;
+        const inputs = dependencies.map((parentSelector) => parentSelector(state));
+
+        if (inputs.length > 0) {
+          analyzingResult.selectorInputs = inputs;
+        }
       } catch (e) {
-        analyzingResult.analyzingError = `checkSelector: error when getting Output of selector ${selectorName}. The error was:\n${e}`;
+        analyzingResult.analyzingError = `checkSelector: error when getting Inputs of selector ${selectorName}. The error was:\n${e}`;
+      }
+
+      if (outputIsStateDependentOnly) {
+        try {
+          analyzingResult.selectorOutput = receivedSelector(state);
+        } catch (e) {
+          analyzingResult.analyzingError = `checkSelector: error when getting Output of selector ${selectorName}. The error was:\n${e}`;
+        }
+      } else {
+        analyzingResult.selectorOutput = 'Can`t get it because it depends on external arguments';
       }
     } catch (e) {
-      analyzingResult.analyzingError = `checkSelector: error when getting Inputs of selector ${selectorName}. The error was:\n${e}`;
+      analyzingResult.analyzingError = `checkSelector: error when trying to check Inputs arguments count of selector ${selectorName}. The error was:\n${e}`;
     }
   }
 
@@ -129,6 +144,7 @@ export function createSelectorGraph(options?: CreateSelectorGraphOptions): Graph
       recomputations,
       isNamed,
       selectorInputs,
+      outputIsStateDependentOnly,
       selectorOutput,
       analyzingError,
     } = analyzeSelector(selector, options?.stateGetter);
@@ -139,6 +155,7 @@ export function createSelectorGraph(options?: CreateSelectorGraphOptions): Graph
       recomputations,
       lastRecomputationReasone: null,
       selectorInputs,
+      outputIsStateDependentOnly,
       selectorOutput,
       analyzingError,
     };
@@ -170,6 +187,5 @@ export const resetSelectorsRecomputationCount = () => {
 };
 
 export function resetSelectorsState() {
-  getState = null;
   allSelectors.clear();
 }
