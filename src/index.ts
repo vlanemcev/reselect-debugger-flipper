@@ -111,6 +111,8 @@ const reduxMiddleware: Middleware = (store) => (next) => (action) => {
     }
 
     return result;
+  } else {
+    return next(action);
   }
 };
 
