@@ -4,11 +4,14 @@
 
 - Recomputations of selector
 - Selectors Inputs
-- Selectors Output
+- Selectors Output (In case if selector not dependent from external arguments)
 - Last Recomputation reasone
 - Dependency Graph
 - Highlight Most Recomputed Selectors
 - Search by Selectors Graph
+- Shows "Not Memoized (NM)" selectors
+
+![image](https://user-images.githubusercontent.com/26767564/125459840-cdec91d8-f55e-4e18-b58e-5ec42bcf2647.png)
 
 ## Get Started
 
